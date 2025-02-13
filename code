@@ -1,0 +1,155 @@
+package com.apidoc.Api_Documentation;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ApiDocumentationApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ApiDocumentationApplication.class, args);
+	}
+
+}
+
+
+
+
+package com.apidoc.Api_Documentation.controller;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api")
+public class OpenApiController {
+
+    private final ResourceLoader resourceLoader;
+
+    public OpenApiController(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    @GetMapping("/openapi-files")
+    public List<String> getOpenApiFiles() throws IOException {
+        Resource resource = resourceLoader.getResource("classpath:static/openapi/");
+        return Files.list(Paths.get(resource.getURI()))
+                .map(path -> path.getFileName().toString())
+                .collect(Collectors.toList());
+    }
+}
+
+
+
+openapi: 3.0.1
+info:
+  title: Sample API
+  description: API for managing users
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /users:
+    get:
+      summary: Get all users
+      operationId: getUsers
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: John Doe
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Documentation</title>
+    <script>
+        async function loadApiFiles() {
+            const response = await fetch('/api/openapi-files');
+            const files = await response.json();
+            const listContainer = document.getElementById('api-list');
+            listContainer.innerHTML = '';
+
+            files.forEach(file => {
+                let listItem = document.createElement('li');
+                let link = document.createElement('a');
+                link.href = `/swagger-ui/index.html?url=/openapi/${file}`;
+                link.textContent = file;
+                link.target = "_blank";
+                listItem.appendChild(link);
+                listContainer.appendChild(listItem);
+            });
+        }
+
+        window.onload = loadApiFiles;
+    </script>
+</head>
+<body>
+    <h2>Available OpenAPI Documentation</h2>
+    <ul id="api-list">
+        <li>Loading...</li>
+    </ul>
+</body>
+</html>
+
+spring.application.name=Api_Documentation
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.enabled=true
+server.port=1010
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+
+pendencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+       </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+    <!-- OpenAPI Swagger UI -->
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>2.1.0</version>
+    </dependency>
+
+
+
+
