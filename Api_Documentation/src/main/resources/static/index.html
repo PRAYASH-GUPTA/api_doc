@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Documentation</title>
+    <script>
+        async function loadApiFiles() {
+            const response = await fetch('/api/openapi-files');
+            const files = await response.json();
+            const listContainer = document.getElementById('api-list');
+            listContainer.innerHTML = '';
+
+            files.forEach(file => {
+                let listItem = document.createElement('li');
+                let link = document.createElement('a');
+                link.href = `/swagger-ui/index.html?url=/openapi/${file}`;
+                link.textContent = file;
+                link.target = "_blank";
+                listItem.appendChild(link);
+                listContainer.appendChild(listItem);
+            });
+        }
+
+        window.onload = loadApiFiles;
+    </script>
+</head>
+<body>
+    <h2>Available OpenAPI Documentation</h2>
+    <ul id="api-list">
+        <li>Loading...</li>
+    </ul>
+</body>
+</html>
